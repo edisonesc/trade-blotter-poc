@@ -9,7 +9,17 @@
 * 🟢 You can import this file directly.
 */
 
+export const TradeSide = {
+  BUY: 'BUY',
+  SELL: 'SELL'
+} as const
+
+export type TradeSide = (typeof TradeSide)[keyof typeof TradeSide]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const TradeStatus = {
+  ACTIVE: 'ACTIVE',
+  CANCELLED: 'CANCELLED'
+} as const
+
+export type TradeStatus = (typeof TradeStatus)[keyof typeof TradeStatus]
