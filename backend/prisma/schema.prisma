@@ -6,3 +6,39 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+enum TradeSide {
+  BUY
+  SELL
+}
+
+enum TradeStatus {
+  ACTIVE
+  CANCELLED
+}
+
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+
+  trades    Trade[]
+}
+
+model Trade {
+  id          String        @id @default(uuid())
+  symbol      String
+  quantity    Int
+
+  // Default numeric precision; tighten to @db.Decimal(18, 4) if we need fixed scale for money
+  price       Decimal
+  side        TradeSide
+  status      TradeStatus   @default(ACTIVE)
+  tradeDate   DateTime      @default(now())
+
+  traderId     String
+
+  // onDelete defaults to Restrict — a User with trades can't be deleted. Revisit if cascade deletes are wanted.
+  trader      User          @relation(fields: [traderId], references: [id])
+}
