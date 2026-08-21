@@ -20,7 +20,7 @@ const config: runtime.GetPrismaClientConfig = {
   "clientVersion": "7.9.1",
   "engineVersion": "e922089b7d7502aff4249d5da3420f6fa55fc6ad",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider = \"prisma-client\"\n  output   = \"../prisma/generated/\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nenum TradeSide {\n  BUY\n  SELL\n}\n\nenum TradeStatus {\n  ACTIVE\n  CANCELLED\n}\n\nmodel User {\n  id        String   @id @default(uuid())\n  email     String   @unique\n  username  String   @unique\n  password  String\n  createdAt DateTime @default(now())\n\n  trades Trade[]\n}\n\nmodel Trade {\n  id       String @id @default(uuid())\n  symbol   String\n  quantity Int\n\n  // Default numeric precision; tighten to @db.Decimal(18, 4) if we need fixed scale for money\n  price     Decimal\n  side      TradeSide\n  status    TradeStatus @default(ACTIVE)\n  tradeDate DateTime    @default(now())\n\n  traderId String\n\n  // onDelete defaults to Restrict — a User with trades can't be deleted. Revisit if cascade deletes are wanted.\n  trader User @relation(fields: [traderId], references: [id])\n}\n",
+  "inlineSchema": "generator client {\n  provider     = \"prisma-client\"\n  output       = \"../prisma/generated/\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nenum TradeSide {\n  BUY\n  SELL\n}\n\nenum TradeStatus {\n  ACTIVE\n  CANCELLED\n}\n\nmodel User {\n  id        String   @id @default(uuid())\n  email     String   @unique\n  username  String   @unique\n  password  String\n  createdAt DateTime @default(now())\n\n  trades Trade[]\n}\n\nmodel Trade {\n  id       String @id @default(uuid())\n  symbol   String\n  quantity Int\n\n  // Default numeric precision; tighten to @db.Decimal(18, 4) if we need fixed scale for money\n  price     Decimal\n  side      TradeSide\n  status    TradeStatus @default(ACTIVE)\n  tradeDate DateTime    @default(now())\n\n  traderId String\n\n  // onDelete defaults to Restrict — a User with trades can't be deleted. Revisit if cascade deletes are wanted.\n  trader User @relation(fields: [traderId], references: [id])\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -45,10 +45,10 @@ async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Modul
 }
 
 config.compilerWasm = {
-  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.mjs"),
+  getRuntime: async () => await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.js"),
 
   getQueryCompilerWasmModule: async () => {
-    const { wasm } = await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.wasm-base64.mjs")
+    const { wasm } = await import("@prisma/client/runtime/query_compiler_fast_bg.postgresql.wasm-base64.js")
     return await decodeBase64AsWasm(wasm)
   },
 
