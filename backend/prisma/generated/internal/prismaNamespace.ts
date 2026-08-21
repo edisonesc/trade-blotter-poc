@@ -618,12 +618,15 @@ export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof User
 
 export const TradeScalarFieldEnum = {
   id: 'id',
+  tradeSeq: 'tradeSeq',
   symbol: 'symbol',
   quantity: 'quantity',
   price: 'price',
   side: 'side',
   status: 'status',
-  tradeDate: 'tradeDate',
+  tradeTimestamp: 'tradeTimestamp',
+  book: 'book',
+  counterparty: 'counterparty',
   traderId: 'traderId'
 } as const
 
