@@ -2,7 +2,26 @@
 
 ---
 
-## Developer workflow
+## Architecture decisions
+
+Stack
+
+Frontend: React, Vite
+Backend: NestJS
+DB: Prisma, PostgreSQL
+Other: Docker
+
+## Installation instructions
+
+## How to run the application
+
+1. `docker  compose up`
+
+```
+Frontend: http://localhost:5173/
+API: http://localhost:3000/api/v1
+Docs: `http://localhost:3000/api/v1/docs`
+```
 
 ### Manual migrations
 
@@ -19,8 +38,16 @@ DATABASE_URL="postgresql://username:password@localhost:5433/trading-platform-db?
 
 - Regenerate the client after a schema change (also done automatically by `migrate dev`): `docker compose exec backend npx prisma generate`
 
+Local (outside docker)
 `npx prisma generate`
 
 - Inspect data: `docker compose exec backend npx prisma studio --port 5555 --browser none`
+- Format: `npx prisma format`
 
 ---
+
+## How to run tests
+
+## Assumptions made
+
+## Trade-offs accepted
