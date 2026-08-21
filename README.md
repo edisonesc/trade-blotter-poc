@@ -21,10 +21,6 @@ DATABASE_URL="postgresql://username:password@localhost:5433/trading-platform-db?
 
 `npx prisma generate`
 
-- Inspect data: `docker compose exec backend npx prisma studio`
+- Inspect data: `docker compose exec backend npx prisma studio --port 5555 --browser none`
 
 ---
-
-### Prisma Studio
-
-`docker compose exec backend npx prisma studio --port 5555 --browser none`
