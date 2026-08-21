@@ -71,10 +71,13 @@ $ npm run test:cov
 
 ```
 cd backend
-DATABASE_URL="postgresql://postgres:postgres@localhost:5433/trading-platform-db?schema=public" npx prisma migrate dev --name <change-name>
+DATABASE_URL="postgresql://username:password@localhost:5433/trading-platform-db?schema=public" npx prisma migrate dev --name <change-name>
 ```
 
 - Regenerate the client after a schema change (also done automatically by `migrate dev`): `docker compose exec backend npx prisma generate`
+
+`npx prisma generate`
+
 - Inspect data: `docker compose exec backend npx prisma studio`
 
 ---
