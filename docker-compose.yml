@@ -3,12 +3,17 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
-    
+    env_file:
+      - ./backend/.env
+    depends_on:
+      db:
+        condition: service_healthy
+
     ports:
       - "3000:3000"
 
     develop:
-      watch: 
+      watch:
         - action: sync
           path: ./backend/src
           target: /app/src
@@ -16,16 +21,33 @@ services:
         - action: rebuild
           path: ./backend/package.json
 
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: trading-platform-db
+    ports:
+      - "5433:5433"
+    volumes:
+      - db-data:/var/lib/postresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
+    env_file:
+      - ./frontend/.env
 
     ports:
       - "5173:5173"
 
-
-    develop: 
+    develop:
       watch:
         - action: sync
           path: ./frontend/src
@@ -33,3 +55,6 @@ services:
 
         - action: rebuild
           path: ./frontend/package.json
+
+volumes:
+  db-data:

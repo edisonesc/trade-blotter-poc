@@ -57,6 +57,13 @@ $ npm run test:e2e
 $ npm run test:cov
 ```
 
+## Developer workflow (manual migrations)
+
+- Bring the stack up: `docker compose up`
+- Create/apply a migration after editing `schema.prisma`: `docker compose exec backend npx prisma migrate dev --name <change-name>`
+- Regenerate the client after a schema change (also done automatically by `migrate dev`): `docker compose exec backend npx prisma generate`
+- Inspect data: `docker compose exec backend npx prisma studio`
+
 ## Deployment
 
 When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
