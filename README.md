@@ -7,6 +7,7 @@
 Stack
 
 - Frontend: React, Vite
+- Styling/Theme: Shadcn, TailwindCSS
 - Backend: NestJS
 - DB: Prisma, PostgreSQL
 - Other: Docker
