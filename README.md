@@ -4,13 +4,15 @@
 
 ## Architecture decisions
 
-Stack
+Target Stack
 
 - Frontend: React, Vite
-- Styling/Theme: Shadcn, TailwindCSS
+  - Styling/Theme: Shadcn, TailwindCSS
+  - Forms/Validation: Zod, React-Hook-Form
 - Backend: NestJS
 - DB: Prisma, PostgreSQL
-- Other: Docker
+- Real-time Communication: Socket.IO
+- Infrastructure: Docker, Github Actions, AWS
 
 **Trade broadcast flow**
 
@@ -90,13 +92,24 @@ cd backend
 DATABASE_URL="postgresql://username:password@localhost:5433/trading-platform-db?schema=public" npx prisma migrate dev --name <change-name>
 ```
 
-- Regenerate the client after a schema change (also done automatically by `migrate dev`): `docker compose exec backend npx prisma generate`
+Regenerate the client after a schema change (also done automatically by `migrate dev`):
 
-Local (outside docker)
-`npx prisma generate`
+- Run inside container: `docker compose exec backend npx prisma generate`
+- Local: `npx prisma generate`
 
 - Inspect data: `docker compose exec backend npx prisma studio --port 5555 --browser none`
 - Format: `npx prisma format`
+
+### Seed data
+
+Populates the database with 8 test users and ~500 randomized trades for local development/testing of the blotter.
+
+- Run inside container: `docker compose exec backend npm run db:seed`
+- Local: `cd backend && DATABASE_URL="postgresql://postgres:postgres@localhost:5433/trading-platform-db?schema=public" npx prisma db seed`
+
+Safe to re-run — user records are upserted and seeded trades are cleared and reinserted each time, without touching any other data in the database.
+
+**Test login:** `trader1@seed.local` … `trader8@seed.local`, password `Password123!` for all.
 
 ---
 
