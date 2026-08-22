@@ -9,15 +9,21 @@ import { PrismaService } from '../prisma/prisma.service';
 import { UpdateTradeDTO } from './dto/update-trade.dto';
 import { Trade, TradeStatus } from 'prisma/generated/client';
 import { isObjectEmpty } from 'src/shared/utils/common.util';
+import { EventEmitter2 } from '@nestjs/event-emitter';
+import { TRADE_EVENTS } from './events/trade-lifecycle.events';
 
 @Injectable()
 export class TradesService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly eventEmitter: EventEmitter2,
+  ) {}
   async createTrade(userID: string, dto: CreateTradeDTO) {
-    await this.prisma.trade.create({
+    const trade = await this.prisma.trade.create({
       data: { ...dto, traderId: userID },
     });
 
+    this.eventEmitter.emit(TRADE_EVENTS.CREATED, { trade });
     return {
       message: 'Successfully created',
     };
@@ -31,10 +37,12 @@ export class TradesService {
 
     this.assertCancelled(trade);
 
-    await this.prisma.trade.update({
+    const updatedTrade = await this.prisma.trade.update({
       where: { id: tradeID },
       data: { ...dto },
     });
+
+    this.eventEmitter.emit(TRADE_EVENTS.UPDATED, { trade: updatedTrade });
 
     return {
       message: 'Successfully updated',
@@ -61,10 +69,12 @@ export class TradesService {
 
     this.assertCancelled(trade);
 
-    await this.prisma.trade.update({
+    const updatedTrade = await this.prisma.trade.update({
       where: { id: tradeID },
       data: { status: TradeStatus.CANCELLED },
     });
+
+    this.eventEmitter.emit(TRADE_EVENTS.CANCELLED, { trade: updatedTrade });
 
     return {
       message: `Successfully cancelled trade: ${tradeID}`,

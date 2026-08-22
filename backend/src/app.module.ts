@@ -7,6 +7,8 @@ import { PrismaModule } from './modules/prisma/prisma.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { TradesModule } from './modules/trades/trades.module';
+import { TradesGatewayModule } from './modules/trades-gateway/trades-gateway.module';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 
 @Module({
   imports: [
@@ -18,6 +20,9 @@ import { TradesModule } from './modules/trades/trades.module';
     UsersModule,
     AuthModule,
     TradesModule,
+
+    EventEmitterModule.forRoot(),
+    TradesGatewayModule,
   ],
   controllers: [AppController],
   providers: [AppService],
