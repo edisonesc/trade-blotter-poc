@@ -6,10 +6,10 @@
 
 Stack
 
-Frontend: React, Vite
-Backend: NestJS
-DB: Prisma, PostgreSQL
-Other: Docker
+- Frontend: React, Vite
+- Backend: NestJS
+- DB: Prisma, PostgreSQL
+- Other: Docker
 
 **Trade broadcast flow**
 
