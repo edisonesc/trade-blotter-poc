@@ -118,16 +118,17 @@ Local (outside docker)
 - `unsubscribeFromSymbol` — `{ symbol: string }`. Leaves that room.
 
 **Example client**
-\`\`\`js
-import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:3000/trades', {
-auth: { token: jwt },
+```js
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3000/trades", {
+  auth: { token: jwt },
 });
 
-socket.on('tradeUpdate', (trade) => console.log(trade));
-socket.emit('subscribeToSymbol', { symbol: 'AAPL' });
-\`\`\`
+socket.on("tradeUpdate", (trade) => console.log(trade));
+socket.emit("subscribeToSymbol", { symbol: "AAPL" });
+```
 
 ## Assumptions made
 
