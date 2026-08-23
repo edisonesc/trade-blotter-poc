@@ -36,6 +36,7 @@ import {
   AlertTriangle,
   Ban,
   Inbox,
+  Minus,
   Pencil,
   Plus,
   RefreshCw,
@@ -173,8 +174,12 @@ function buildColumnDefs(
       filter: false,
       resizable: false,
       cellRenderer: (params: ICellRendererParams<Trade>) => {
-        if (!params.data) {
-          return null;
+        if (!params.data || params.data.traderId !== currentUserId) {
+          return (
+            <div className="flex h-full items-center justify-center text-muted-foreground/40">
+              <Minus className="h-3.5 w-3.5" />
+            </div>
+          );
         }
         return (
           <TradeActionsCell
