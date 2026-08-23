@@ -22,7 +22,7 @@ export default function AuthLayout() {
         <Outlet />
       </Card>
 
-      <p className="relative pt-8 text-xs text-white/30">POC</p>
+      {/* <p className="relative pt-8 text-xs text-white/30">POC</p> */}
     </div>
   );
 }
