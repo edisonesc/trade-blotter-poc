@@ -19,7 +19,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api/v1');
 
-  app.useGlobalFilters(new ValidationFilter(), new AllExceptionsFilter());
+  app.useGlobalFilters(new AllExceptionsFilter(), new ValidationFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
