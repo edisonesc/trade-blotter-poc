@@ -1,4 +1,4 @@
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/hooks/useAuth";
 import { FullscreenSpinner } from "../components/FullScreenSpinner";
 import { Navigate, Outlet } from "react-router-dom";
 

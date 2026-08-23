@@ -1,26 +1,9 @@
 import { authApi } from "@/lib/api/auth.api";
+import { setUnauthorizedHandler } from "@/lib/api/core/client";
 import { tokenStorage } from "@/lib/api/core/token-storage";
-import type { User } from "@/types/auth.type";
+import { AuthContext, type AuthContextValue, type AuthStatus } from "@/hooks/useAuth";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createContext, useContext, useState, type ReactNode } from "react";
-
-type AuthStatus = "loading" | "authenticated" | "unauthenticated";
-
-interface AuthContextValue {
-  token: string | null;
-  user: User | null;
-  status: AuthStatus;
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (
-    email: string,
-    username: string,
-    password: string,
-  ) => Promise<void>;
-  logout: () => void;
-}
-
-const AuthContext = createContext<AuthContextValue | null>(null);
+import { useEffect, useState, type ReactNode } from "react";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(() =>
@@ -30,14 +13,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const meQuery = useQuery({
     queryKey: ["me", token],
-    queryFn: async () => {
-      try {
-        return await authApi.me();
-      } catch (err) {
-        tokenStorage.clearToken();
-        throw err;
-      }
-    },
+    queryFn: () => authApi.me(),
     enabled: !!token,
   });
 
@@ -60,7 +36,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loginMutation = useMutation({
     mutationFn: ({ email, password }: { email: string; password: string }) =>
-      authApi.login(email, password),
+      authApi.login({ email, password }),
   });
 
   const registerMutation = useMutation({
@@ -72,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       email: string;
       username: string;
       password: string;
-    }) => authApi.register(email, username, password),
+    }) => authApi.register({ email, username, password }),
   });
 
   async function login(email: string, password: string) {
@@ -99,6 +75,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     queryClient.removeQueries({ queryKey: ["trades"] });
   }
 
+  useEffect(() => {
+    setUnauthorizedHandler(logout);
+  });
+
   const value: AuthContextValue = {
     token,
     user: meQuery.data ?? null,
@@ -110,10 +90,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
-}
-
-export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
-  return ctx;
 }

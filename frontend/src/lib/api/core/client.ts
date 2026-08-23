@@ -10,6 +10,11 @@ export class ApiError extends Error {
   }
 }
 
+let onUnauthorized: (() => void) | null = null;
+export function setUnauthorizedHandler(handler: () => void) {
+  onUnauthorized = handler;
+}
+
 export async function request<T>(
   path: string,
   options: RequestInit = {},
@@ -27,6 +32,7 @@ export async function request<T>(
   });
 
   if (!res.ok) {
+    if (res.status === 401 && token) onUnauthorized?.();
     const body = await res.json().catch(() => null);
     const message = Array.isArray(body?.message)
       ? body.message.join(", ")
