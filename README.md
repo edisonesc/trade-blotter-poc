@@ -10,6 +10,7 @@ Target Stack
   - Styling/Theme: Shadcn, TailwindCSS
   - Routing: React-router-dom
   - Server State/Data Fetching: TanStack Query
+  - Table: ag-grid-community, ag-grid-react
 - Backend: NestJS
 - DB: Prisma, PostgreSQL
 - Real-time Communication: Socket.IO
