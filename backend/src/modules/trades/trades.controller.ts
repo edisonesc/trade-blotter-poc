@@ -8,12 +8,13 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse } from '@nestjs/swagger';
 import { TradesService } from './trades.service';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { IUser } from 'src/shared/interface/user.interface';
 import { UpdateTradeDTO } from './dto/update-trade.dto';
 import { CreateTradeDTO } from './dto/create-trade.dto';
+import { TradeEntity } from './entities/trade.entity';
 
 @Controller('trades')
 export class TradesController {
@@ -21,6 +22,7 @@ export class TradesController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @ApiOkResponse({ type: TradeEntity, isArray: true })
   @Get()
   getTrades() {
     return this.tradesService.getTrades();
