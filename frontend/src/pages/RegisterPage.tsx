@@ -1,27 +1,34 @@
-import { useState, type SubmitEvent } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiError } from "@/lib/api/core/client";
 import { Card } from "@/components/ui/card";
+import { FieldMessage } from "@/components/ui/field-message";
+import { registerSchema, type RegisterDTO } from "@/dto/login.dto";
 
 export function RegisterPage() {
-  const { register } = useAuth();
+  const { register: registerUser } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
 
-  async function onSubmit(e: SubmitEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<RegisterDTO>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: { email: "", username: "", password: "" },
+  });
+
+  async function onSubmit(data: RegisterDTO) {
     setError(null);
-    setSubmitting(true);
     try {
-      await register(email, username, password);
+      await registerUser(data.email, data.username, data.password);
       navigate("/blotter", { replace: true });
     } catch (err) {
       setError(
@@ -29,15 +36,13 @@ export function RegisterPage() {
           ? err.message
           : "Something went wrong. Please try again.",
       );
-    } finally {
-      setSubmitting(false);
     }
   }
 
   return (
     <div className="w-screen h-screen flex">
       <Card className="p-4 w-125 h-fit m-auto">
-        <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <h1 className="text-lg font-semibold">Create an account</h1>
           </div>
@@ -49,10 +54,9 @@ export function RegisterPage() {
               type="email"
               autoComplete="email"
               autoFocus
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...register("email")}
             />
+            <FieldMessage error={errors.email?.message} />
           </div>
 
           <div className="flex flex-col gap-2">
@@ -61,14 +65,12 @@ export function RegisterPage() {
               id="username"
               type="text"
               autoComplete="username"
-              required
-              minLength={5}
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              {...register("username")}
             />
-            <p className="text-xs text-muted-foreground">
-              At least 5 characters.
-            </p>
+            <FieldMessage
+              error={errors.username?.message}
+              hint="At least 5 characters."
+            />
           </div>
 
           <div className="flex flex-col gap-2">
@@ -77,14 +79,12 @@ export function RegisterPage() {
               id="password"
               type="password"
               autoComplete="new-password"
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              {...register("password")}
             />
-            <p className="text-xs text-muted-foreground">
-              At least 8 characters.
-            </p>
+            <FieldMessage
+              error={errors.password?.message}
+              hint="At least 8 characters."
+            />
           </div>
 
           {error && (
@@ -93,8 +93,8 @@ export function RegisterPage() {
             </p>
           )}
 
-          <Button type="submit" disabled={submitting}>
-            {submitting ? "Creating account…" : "Create account"}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Creating account…" : "Create account"}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">

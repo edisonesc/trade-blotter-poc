@@ -1,26 +1,34 @@
-import { useState, type SubmitEvent } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { ApiError } from "@/lib/api/core/client";
 import { Card } from "@/components/ui/card";
+import { FieldMessage } from "@/components/ui/field-message";
+import { loginSchema, type LoginDTO } from "@/dto/login.dto";
 
 export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
 
-  async function onSubmit(e: SubmitEvent<HTMLFormElement>) {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginDTO>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  async function onSubmit(data: LoginDTO) {
     setError(null);
-    setSubmitting(true);
     try {
-      await login(email, password);
+      await login(data.email, data.password);
       navigate("/blotter", { replace: true });
     } catch (err) {
       setError(
@@ -28,15 +36,13 @@ export function LoginPage() {
           ? "Invalid email or password"
           : "Something went wrong. Please try again.",
       );
-    } finally {
-      setSubmitting(false);
     }
   }
 
   return (
     <div className="w-screen h-screen flex">
       <Card className="p-4 w-125 h-fit m-auto">
-        <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div className="flex flex-col gap-1">
             <h1 className="text-lg font-semibold">Log in</h1>
           </div>
@@ -48,10 +54,9 @@ export function LoginPage() {
               type="email"
               autoComplete="email"
               autoFocus
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...register("email")}
             />
+            <FieldMessage error={errors.email?.message} />
           </div>
 
           <div className="flex flex-col gap-2">
@@ -60,10 +65,9 @@ export function LoginPage() {
               id="password"
               type="password"
               autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              {...register("password")}
             />
+            <FieldMessage error={errors.password?.message} />
           </div>
 
           {error && (
@@ -72,8 +76,8 @@ export function LoginPage() {
             </p>
           )}
 
-          <Button type="submit" disabled={submitting}>
-            {submitting ? "Logging in…" : "Log in"}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Logging in…" : "Log in"}
           </Button>
 
           <p className="text-center text-sm text-muted-foreground">

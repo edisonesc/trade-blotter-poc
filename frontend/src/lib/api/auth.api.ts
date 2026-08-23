@@ -1,16 +1,17 @@
 import type { AuthResponse, User } from "@/types/auth.type";
 import { request } from "./core/client";
+import type { LoginDTO, RegisterDTO } from "@/dto/login.dto";
 
 export const authApi = {
-  login: (email: string, password: string) =>
+  login: (dto: LoginDTO) =>
     request<AuthResponse>("/auth/login", {
       method: "POST",
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(dto),
     }),
-  register: (email: string, username: string, password: string) =>
+  register: (dto: RegisterDTO) =>
     request<AuthResponse>("/auth/register", {
       method: "POST",
-      body: JSON.stringify({ email, username, password }),
+      body: JSON.stringify(dto),
     }),
   me: () => request<User>("/user/me", {}),
 };
