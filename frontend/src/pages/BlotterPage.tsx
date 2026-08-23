@@ -203,6 +203,7 @@ export function BlotterPage() {
 
   const [isTradeCardOpen, setTradeCardOpen] = useState(false);
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
+  const [rowCount, setRowCount] = useState<number | null>(null);
 
   const columnDefs = buildColumnDefs(user?.id, setEditingTrade);
 
@@ -215,15 +216,20 @@ export function BlotterPage() {
   useTradeSocket(
     token,
     (update) => {
-      // Always go through the query cache — it's the single source of
-      // truth for both the grid's rowData and the header's trade count.
-      queryClient.setQueryData<Trade[]>(TRADES_KEY, (prev = []) => {
-        if (update.type === "trade.created") {
+      const api = gridRef.current?.api;
+      if (!api) {
+        queryClient.setQueryData<Trade[]>(TRADES_KEY, (prev = []) => {
           if (prev.some((t) => t.id === update.trade.id)) return prev;
           return [update.trade, ...prev];
-        }
-        return prev.map((t) => (t.id === update.trade.id ? update.trade : t));
-      });
+        });
+        return;
+      }
+      if (update.type === "trade.created") {
+        if (api.getRowNode(update.trade.id)) return;
+        api.applyTransaction({ add: [update.trade], addIndex: 0 });
+      } else {
+        api.applyTransaction({ update: [update.trade] });
+      }
     },
     (message) => {
       if (message.toLowerCase().includes("unauthorized")) {
@@ -231,6 +237,8 @@ export function BlotterPage() {
       }
     },
   );
+
+  const count = rowCount ?? tradesQuery.data?.length ?? 0;
 
   return (
     <div className="flex h-[calc(100svh-8rem)] w-full flex-col gap-4">
@@ -241,7 +249,7 @@ export function BlotterPage() {
           </div>
           <p className="text-sm text-muted-foreground">
             {tradesQuery.data
-              ? `${tradesQuery.data.length} trade${tradesQuery.data.length === 1 ? "" : "s"}`
+              ? `${count} trade${count === 1 ? "" : "s"}`
               : "Trades booked on the desk"}
           </p>
         </div>
@@ -312,9 +320,6 @@ export function BlotterPage() {
           <Inbox className="size-6 text-muted-foreground" />
           <div className="flex flex-col gap-1">
             <p className="text-sm font-medium">No trades yet</p>
-            <p className="text-sm text-muted-foreground">
-              New trades will appear here the moment they're booked.
-            </p>
           </div>
           <Button size="sm" onClick={() => setTradeCardOpen(true)}>
             <Plus /> Create Trade
@@ -332,6 +337,9 @@ export function BlotterPage() {
           rowBuffer={15}
           suppressRowVirtualisation={false}
           suppressColumnVirtualisation={false}
+          onRowDataUpdated={(params) =>
+            setRowCount(params.api.getDisplayedRowCount())
+          }
         />
       )}
     </div>
