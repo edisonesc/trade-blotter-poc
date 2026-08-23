@@ -1,5 +1,7 @@
 # POC Trading Platform
 
+A proof-of-concept trading blotter: a NestJS/Prisma/PostgreSQL backend that persists trades and broadcasts updates in real time over Socket.IO, with a React/Vite frontend for viewing and managing them.
+
 ---
 
 ## Architecture decisions
@@ -69,11 +71,29 @@ participant U as UsersService
 
 **Why Socket.IO over SSE**: trade updates are inherently one-directional (server push), so SSE would have sufficed. Socket.IO was chosen to support genuine bidirectional interaction — client-initiated symbol subscriptions — and because it better reflects the real-time patterns (rooms, ack-based events, reconnection) used in production trading systems.
 
+## Prerequisites
+
+- Docker & Docker Compose
+- Node.js (for running Prisma migrations/seed locally, outside the container)
+
 ## Installation instructions
+
+1. Clone the repo.
+2. Create the env files from the provided examples and fill in the values:
+
+   ```
+   cp backend/.env.example backend/.env
+   cp frontend/.env.example frontend/.env
+   ```
+
+   - `backend/.env` — `DATABASE_URL` (see connection string below), `JWT_SECRET`, `JWT_EXPIRES_IN`, `WS_CORS_ORIGIN`, `CORS_ORIGIN`.
+   - `frontend/.env` — `VITE_API_URL` (e.g. `http://localhost:3000/api/v1`), `VITE_WS_URL` (e.g. `http://localhost:3000/trades`).
+
+3. Continue with **How to run the application** below.
 
 ## How to run the application
 
-1. `docker  compose up`
+1. `docker compose up`
 
 ```
 Frontend: http://localhost:5173/
@@ -117,6 +137,24 @@ Safe to re-run — user records are upserted and seeded trades are cleared and r
 
 ## How to run tests
 
+Backend (from `backend/`):
+
+```bash
+# unit tests
+npm run test
+
+# unit tests, watch mode
+npm run test:watch
+
+# e2e tests
+npm run test:e2e
+
+# coverage
+npm run test:cov
+```
+
+Or inside the running container: `docker compose exec backend npm run test`.
+
 ## Real-time trade updates (WebSocket)
 
 **Connect**
@@ -148,4 +186,15 @@ socket.emit("subscribeToSymbol", { symbol: "AAPL" });
 
 ## Assumptions made
 
+- A single logged-in user represents one "trader" seat; there's no concept of teams, desks, or per-user permissions beyond authentication.
+- The blotter is the primary view: all connected clients see all trades by default (`blotter` room), with per-symbol filtering as an opt-in narrower feed rather than the default.
+- Local development runs entirely through Docker Compose; direct host installation of Postgres isn't a supported path.
+- Seed data (8 users, ~500 trades) is sufficient to exercise the blotter's filtering/sorting/real-time behavior without needing production-scale volume.
+
 ## Trade-offs accepted
+
+- **Socket.IO over plain WebSocket/SSE**: heavier client/server dependency than raw `ws`, chosen for built-in rooms, reconnection, and ack support (see rationale above) rather than minimal footprint.
+- **Prisma migrations run locally, not in-container**: keeps migration files versioned in the repo and avoids container-only state, at the cost of requiring Node/Prisma installed on the host for schema changes.
+- **Seed script clears and reinserts trades on every run**: simplest way to get a consistent, re-runnable dev dataset, at the cost of not preserving manually-created trades across reseeds.
+- **No refresh token rotation or server-side session invalidation**: auth is stateless JWT — a token stays valid until it expires and there's no server-side way to revoke it early. Expiry/invalidation is instead handled client-side: `AuthContext` fetches `GET /user/me` whenever a token is present to validate it, and a centralized `401` interceptor in the API client (`onUnauthorized` in `client.ts`) triggers logout on any unauthorized response. That covers "detect and kick out on an invalid/expired token," but not rotation, forced logout from the server, or an idle/inactivity timeout distinct from the JWT's own expiry — those would require a session/refresh-token table, giving up pure statelessness in exchange for revocability.
+- **Some frontend components built ad hoc rather than fully reusable**: e.g. the AG Grid table setup is specific to the blotter's columns/behavior rather than factored into a generic, reusable `AgGridTable` component — acceptable for a single-screen POC, but would need generalizing (configurable columns, sorting, row actions) to support additional grid views.
