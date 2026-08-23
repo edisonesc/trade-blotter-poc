@@ -101,6 +101,19 @@ API: http://localhost:3000/api/v1
 Docs: `http://localhost:3000/api/v1/docs`
 ```
 
+2. Continue with Seed data
+
+### Seed data
+
+Populates the database with 8 test users and ~500 randomized trades for local development/testing of the blotter.
+
+- Run inside container: `docker compose exec backend npm run db:seed`
+- Local: `cd backend && DATABASE_URL="postgresql://username:password@localhost:port/db_name?schema=public" npx prisma db seed`
+
+Safe to re-run — user records are upserted and seeded trades are cleared and reinserted each time, without touching any other data in the database.
+
+**Test login:** `trader1@seed.local` … `trader8@seed.local`, password `Password123!` for all.
+
 ### Manual migrations
 
 - Bring the stack up: `docker compose up`
@@ -121,17 +134,6 @@ Regenerate the client after a schema change (also done automatically by `migrate
 
 - Inspect data: `docker compose exec backend npx prisma studio --port 5555 --browser none`
 - Format: `npx prisma format`
-
-### Seed data
-
-Populates the database with 8 test users and ~500 randomized trades for local development/testing of the blotter.
-
-- Run inside container: `docker compose exec backend npm run db:seed`
-- Local: `cd backend && DATABASE_URL="postgresql://postgres:postgres@localhost:5433/trading-platform-db?schema=public" npx prisma db seed`
-
-Safe to re-run — user records are upserted and seeded trades are cleared and reinserted each time, without touching any other data in the database.
-
-**Test login:** `trader1@seed.local` … `trader8@seed.local`, password `Password123!` for all.
 
 ---
 
