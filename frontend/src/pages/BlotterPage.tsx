@@ -32,7 +32,14 @@ import {
 } from "ag-grid-community";
 
 import { AgGridReact } from "ag-grid-react";
-import { Ban, Pencil, Plus, RefreshCw } from "lucide-react";
+import {
+  AlertTriangle,
+  Ban,
+  Inbox,
+  Pencil,
+  Plus,
+  RefreshCw,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -54,7 +61,7 @@ function TradeActionsCell({
   const [isCancelOpen, setCancelOpen] = useState(false);
   const isCancelled = trade.status == "CANCELLED";
   return (
-    <div className="flex flex-row flex-wrap">
+    <div className="flex flex-row flex-wrap justify-center">
       <Button
         variant="ghost"
         size="icon-sm"
@@ -111,8 +118,13 @@ function buildColumnDefs(
   onEdit: (trade: Trade) => void,
 ): ColDef<Trade>[] {
   return [
-    { field: "tradeSeq", headerName: "Seq", width: 100 },
-    { field: "symbol", headerName: "Symbol" },
+    {
+      field: "tradeSeq",
+      headerName: "Seq",
+      width: 100,
+      cellClass: "font-mono tabular-nums text-muted-foreground",
+    },
+    { field: "symbol", headerName: "Symbol", cellClass: "font-medium" },
     {
       field: "side",
       headerName: "Side",
@@ -122,8 +134,18 @@ function buildColumnDefs(
         </Badge>
       ),
     },
-    { field: "quantity", headerName: "Qty", type: "numericColumn" },
-    { field: "price", headerName: "Price", type: "numericColumn" },
+    {
+      field: "quantity",
+      headerName: "Qty",
+      type: "numericColumn",
+      cellClass: "font-mono tabular-nums",
+    },
+    {
+      field: "price",
+      headerName: "Price",
+      type: "numericColumn",
+      cellClass: "font-mono tabular-nums",
+    },
     {
       field: "status",
       headerName: "Status",
@@ -139,13 +161,14 @@ function buildColumnDefs(
       field: "tradeTimestamp",
       headerName: "Time",
       valueFormatter: (params) => new Date(params.value).toLocaleString(),
+      cellClass: "font-mono tabular-nums text-muted-foreground",
       sort: "desc",
     },
     {
       colId: "actions",
       headerName: "Actions",
       pinned: "right",
-      width: 30,
+      width: 90,
       sortable: false,
       filter: false,
       resizable: false,
@@ -216,59 +239,53 @@ export function BlotterPage() {
     },
   );
 
-  if (tradesQuery.isPending) {
-    return <p className="text-sm text-muted-foreground">Loading Trades...</p>;
-  }
-
-  if (tradesQuery.isError) {
-    return (
-      <p className="text-sm text-destructive">
-        Failed to load trades. Please try refreshing the page.
-      </p>
-    );
-  }
-
-  if (tradesQuery.data.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        No trades yet. New trades will appear here in real time.
-      </p>
-    );
-  }
-
   return (
-    <div className="ag-theme-quartz h-[calc(100svh-8rem)] w-full flex flex-col gap-2">
-      <div className="flex items-center gap-2 self-end">
-        <Button
-          variant="outline"
-          onClick={() =>
-            toast.promise(tradesQuery.refetch(), {
-              loading: "Refreshing trades…",
-              success: "Trades refreshed",
-              error: "Failed to refresh trades",
-            })
-          }
-          disabled={tradesQuery.isFetching}
-        >
-          <RefreshCw
-            className={tradesQuery.isFetching ? "animate-spin" : undefined}
-          />
-          Refresh
-        </Button>
-        <Dialog open={isTradeCardOpen} onOpenChange={setTradeCardOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus></Plus> Create Trade
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle className="text-lg">Create Trade</DialogTitle>
-            </DialogHeader>
-            <TradeCard onSuccess={() => setTradeCardOpen(false)} />
-          </DialogContent>
-        </Dialog>
+    <div className="flex h-[calc(100svh-8rem)] w-full flex-col gap-4">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <h1 className="font-heading text-xl font-semibold">Blotter</h1>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {tradesQuery.data
+              ? `${tradesQuery.data.length} trade${tradesQuery.data.length === 1 ? "" : "s"}`
+              : "Trades booked on the desk"}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={() =>
+              toast.promise(tradesQuery.refetch(), {
+                loading: "Refreshing trades…",
+                success: "Trades refreshed",
+                error: "Failed to refresh trades",
+              })
+            }
+            disabled={tradesQuery.isFetching}
+          >
+            <RefreshCw
+              className={tradesQuery.isFetching ? "animate-spin" : undefined}
+            />
+            Refresh
+          </Button>
+          <Dialog open={isTradeCardOpen} onOpenChange={setTradeCardOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus /> Create Trade
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="text-lg">Create Trade</DialogTitle>
+              </DialogHeader>
+              <TradeCard onSuccess={() => setTradeCardOpen(false)} />
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
       <Dialog
         open={!!editingTrade}
         onOpenChange={(open) => !open && setEditingTrade(null)}
@@ -286,17 +303,44 @@ export function BlotterPage() {
           )}
         </DialogContent>
       </Dialog>
-      <AgGridReact<Trade>
-        ref={gridRef}
-        rowData={tradesQuery.data}
-        columnDefs={columnDefs}
-        defaultColDef={defaultColDef}
-        getRowId={getRowId}
-        animateRows
-        rowBuffer={15}
-        suppressRowVirtualisation={false}
-        suppressColumnVirtualisation={false}
-      />
+
+      {tradesQuery.isPending ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-border text-sm text-muted-foreground">
+          <RefreshCw className="size-5 animate-spin" />
+          Loading trades…
+        </div>
+      ) : tradesQuery.isError ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-xl border border-dashed border-destructive/30 text-center text-sm text-destructive">
+          <AlertTriangle className="size-5" />
+          Failed to load trades. Please try refreshing the page.
+        </div>
+      ) : tradesQuery.data.length === 0 ? (
+        <div className="flex flex-1 flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border text-center">
+          <Inbox className="size-6 text-muted-foreground" />
+          <div className="flex flex-col gap-1">
+            <p className="text-sm font-medium">No trades yet</p>
+            <p className="text-sm text-muted-foreground">
+              New trades will appear here the moment they're booked.
+            </p>
+          </div>
+          <Button size="sm" onClick={() => setTradeCardOpen(true)}>
+            <Plus /> Create Trade
+          </Button>
+        </div>
+      ) : (
+        <AgGridReact<Trade>
+          ref={gridRef}
+          className="ag-theme-quartz flex-1"
+          rowData={tradesQuery.data}
+          columnDefs={columnDefs}
+          defaultColDef={defaultColDef}
+          getRowId={getRowId}
+          animateRows
+          rowBuffer={15}
+          suppressRowVirtualisation={false}
+          suppressColumnVirtualisation={false}
+        />
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import type { TradeUpdateEvent } from "@/types/trade.type";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 
 export function useTradeSocket(
@@ -7,6 +7,8 @@ export function useTradeSocket(
   onUpdate: (update: TradeUpdateEvent) => void,
   onError: (message: string) => void,
 ) {
+  const [isConnected, setConnected] = useState(false);
+
   const onUpdateRef = useRef(onUpdate);
   useEffect(() => {
     onUpdateRef.current = onUpdate;
@@ -23,6 +25,9 @@ export function useTradeSocket(
       auth: { token },
     });
 
+    socket.on("connect", () => setConnected(true));
+    socket.on("disconnect", () => setConnected(false));
+
     socket.on("tradeUpdate", (payload: TradeUpdateEvent) => {
       onUpdateRef.current(payload);
     });
@@ -32,11 +37,15 @@ export function useTradeSocket(
     });
 
     socket.on("connect_error", (err) => {
+      setConnected(false);
       onErrorRef.current?.(err.message);
     });
 
     return () => {
       socket.disconnect();
+      setConnected(false);
     };
   }, [token]);
+
+  return { isConnected };
 }
