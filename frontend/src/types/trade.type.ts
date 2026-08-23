@@ -15,9 +15,16 @@ export interface Trade {
   traderId: string;
 }
 
-export type TradeEventType = "CREATED" | "UPDATED" | "CANCELLED";
+export type TradeEventType =
+  | "trade.created"
+  | "trade.updated"
+  | "trade.cancelled";
 
 export interface TradeUpdateEvent {
   type: TradeEventType;
   trade: Trade;
+}
+
+export interface GenericTradeResponse {
+  message: string;
 }
