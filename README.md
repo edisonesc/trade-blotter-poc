@@ -8,7 +8,8 @@ Target Stack
 
 - Frontend: React, Vite
   - Styling/Theme: Shadcn, TailwindCSS
-  - Forms/Validation: Zod, React-Hook-Form
+  - Routing: React-router-dom
+  - Server State/Data Fetching: TanStack Query
 - Backend: NestJS
 - DB: Prisma, PostgreSQL
 - Real-time Communication: Socket.IO

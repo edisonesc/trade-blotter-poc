@@ -1,11 +1,27 @@
-import { Button } from "@/components/ui/button";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { ProtectedRoute, PublicOnlyRoute } from "./routes/ProtectedRoute";
+import { LoginPage } from "./pages/LoginPage";
+import { RegisterPage } from "./pages/RegisterPage";
+import AppLayout from "./layouts/AppLayout";
+import BlotterPage from "./pages/BlotterPage";
 
 function App() {
   return (
-    <div className="flex min-h-svh flex-col items-center justify-center gap-4">
-      <h1 className="text-lg font-semibold">POC Trading Platform</h1>
-      <Button onClick={() => console.log("clicked")}>Get Started</Button>
-    </div>
+    <Routes>
+      <Route element={<PublicOnlyRoute />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+      </Route>
+
+      <Route element={<ProtectedRoute />}>
+        <Route element={<AppLayout />}>
+          <Route path="/" element={<Navigate to="/blotter" replace />} />
+          <Route path="/blotter" element={<BlotterPage />} />
+        </Route>
+      </Route>
+
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
