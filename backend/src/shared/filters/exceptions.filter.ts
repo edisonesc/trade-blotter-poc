@@ -12,11 +12,13 @@ export class AllExceptionsFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const res = ctx.getResponse<Response>();
-    const status =
-      exception instanceof HttpException ? exception.getStatus() : 500;
+    const isHttpException = exception instanceof HttpException;
+    const status = isHttpException ? exception.getStatus() : 500;
+    const message = isHttpException
+      ? exception.message
+      : 'Internal server error';
+
     this.logger.error(exception instanceof Error ? exception.stack : exception);
-    res
-      .status(status)
-      .json({ statusCode: status, message: 'Internal server error' });
+    res.status(status).json({ statusCode: status, message });
   }
 }
