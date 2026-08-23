@@ -48,7 +48,11 @@ export class AuthService {
   }
 
   private issueToken(user: IAuthPayload) {
-    const payload = { sub: user.id, ...user };
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      username: user.username,
+    };
 
     return {
       accessToken: this.jwtService.sign(payload),

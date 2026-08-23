@@ -8,4 +8,9 @@ export const envValidationSchema = Joi.object({
     .required(),
   JWT_SECRET: Joi.string().min(16).required(),
   JWT_EXPIRES_IN: Joi.string().default('1h'),
+  CORS_ORIGIN: Joi.string().when('NODE_ENV', {
+    is: 'prod',
+    then: Joi.required(),
+    otherwise: Joi.optional().default('*'),
+  }),
 });

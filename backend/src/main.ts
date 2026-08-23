@@ -6,15 +6,20 @@ import { ValidationPipe } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 import { ValidationException } from './shared/exceptions/validation.exception';
 import { ValidationFilter } from './shared/filters/validation.filter';
+import helmet from 'helmet';
+import { AllExceptionsFilter } from './shared/filters/exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+  const corsOrigin = configService.get<string>('CORS_ORIGIN', '*');
+  app.enableCors({
+    origin: corsOrigin === '*' ? '*' : corsOrigin.split(','),
+  });
 
-  app.enableCors();
   app.setGlobalPrefix('api/v1');
 
-  app.useGlobalFilters(new ValidationFilter());
+  app.useGlobalFilters(new ValidationFilter(), new AllExceptionsFilter());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
@@ -24,7 +29,8 @@ async function bootstrap() {
       },
     }),
   );
-  // TODO: Global FIlters + Pipes
+
+  app.use(helmet());
 
   if (configService.get<string>('NODE_ENV') == 'dev') {
     const swaggerOptions = new DocumentBuilder()
