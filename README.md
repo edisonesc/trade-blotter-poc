@@ -89,8 +89,6 @@ participant U as UsersService
    - `backend/.env` — `DATABASE_URL` (see connection string below), `JWT_SECRET`, `JWT_EXPIRES_IN`, `WS_CORS_ORIGIN`, `CORS_ORIGIN`.
    - `frontend/.env` — `VITE_API_URL` (e.g. `http://localhost:3000/api/v1`), `VITE_WS_URL` (e.g. `http://localhost:3000/trades`).
 
-3. Continue with **How to run the application** below.
-
 ## How to run the application
 
 1. `docker compose up`
@@ -103,7 +101,7 @@ Docs: `http://localhost:3000/api/v1/docs`
 
 2. Continue with Seed data
 
-### Seed data
+### Re-seed data
 
 Populates the database with 8 test users and ~500 randomized trades for local development/testing of the blotter.
 
