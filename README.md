@@ -11,23 +11,28 @@ Features
 
 ## Architecture decisions
 
-Target Stack
-
-- Frontend: React, Vite
-  - Styling/Theme: Shadcn, TailwindCSS
-  - Routing: React-router-dom
-  - Server State/Data Fetching: TanStack Query
-  - Table: ag-grid-community, ag-grid-react
-  - Forms: React-hook-form
-  - Validation: Zod
-- Backend: NestJS
-  - Docs: Swagger
-  - Auth: jwt, passport
-  - Validation: Joi, class-validator, class-transformer
-  - Seed: FakerJS
-- DB: Prisma, PostgreSQL
-- Real-time Communication: Socket.IO
-- Containerization: Docker
+| Layer            | Technology                          | Purpose                           |
+| ---------------- | ----------------------------------- | --------------------------------- |
+| Frontend         | React                               | UI library                        |
+| Frontend         | Vite                                | Build tool/dev server             |
+| Frontend         | Shadcn                              | UI component library              |
+| Frontend         | TailwindCSS                         | Styling/theme                     |
+| Frontend         | React-router-dom                    | Routing                           |
+| Frontend         | TanStack Query                      | Server state/data fetching        |
+| Frontend         | ag-grid-community / ag-grid-react   | Blotter table/Virtualised Grids   |
+| Frontend         | React-hook-form                     | Forms                             |
+| Frontend         | Zod                                 | Validation                        |
+| Backend          | NestJS                              | Backend framework                 |
+| Backend          | Swagger (@nestjs/swagger)           | API docs                          |
+| Backend          | jwt (@nestjs/jwt)                   | Auth (token issuing/verification) |
+| Backend          | passport                            | Auth (strategy framework)         |
+| Backend          | Joi                                 | Env/config validation             |
+| Backend          | class-validator / class-transformer | DTO validation                    |
+| Backend          | FakerJS                             | Seed data generation              |
+| DB               | Prisma                              | ORM/migrations                    |
+| DB               | PostgreSQL                          | Database                          |
+| Real-time        | Socket.IO                           | WebSocket communication           |
+| Containerization | Docker                              | Local dev environment             |
 
 **Trade broadcast flow**
 
