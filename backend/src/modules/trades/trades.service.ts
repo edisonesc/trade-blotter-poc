@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
@@ -69,15 +70,24 @@ export class TradesService {
 
     this.assertCancelled(trade);
 
-    const updatedTrade = await this.prisma.trade.update({
-      where: { id: tradeID },
+    const result = await this.prisma.trade.updateMany({
+      where: { id: tradeID, status: { not: TradeStatus.CANCELLED } },
       data: { status: TradeStatus.CANCELLED },
     });
 
+    if (result.count === 0) {
+      throw new ConflictException(
+        'Request Failed: Trade already cancelled by a concurrent request',
+      );
+    }
+
+    const updatedTrade = await this.prisma.trade.findUniqueOrThrow({
+      where: { id: tradeID },
+    });
     this.eventEmitter.emit(TRADE_EVENTS.CANCELLED, { trade: updatedTrade });
 
     return {
-      message: `Successfully cancelled trade: ${tradeID}`,
+      message: `Successfully cancelled trade: ${this.formatTradeId(updatedTrade.tradeSeq)}`,
     };
   }
 
