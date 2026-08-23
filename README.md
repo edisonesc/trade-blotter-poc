@@ -1,8 +1,13 @@
-# POC Trading Platform
+# Trade Blotter POC
 
-A proof-of-concept trading blotter: a NestJS/Prisma/PostgreSQL backend that persists trades and broadcasts updates in real time over Socket.IO, with a React/Vite frontend for viewing and managing them.
+A proof-of-concept trading blotter
 
----
+Features
+
+- Create Trade
+- Amend Trade
+- Cancel Trade
+- Live Updates
 
 ## Architecture decisions
 
@@ -13,10 +18,16 @@ Target Stack
   - Routing: React-router-dom
   - Server State/Data Fetching: TanStack Query
   - Table: ag-grid-community, ag-grid-react
+  - Forms: React-hook-form
+  - Validation: Zod
 - Backend: NestJS
+  - Docs: Swagger
+  - Auth: jwt, passport
+  - Validation: Joi, class-validator, class-transformer
+  - Seed: FakerJS
 - DB: Prisma, PostgreSQL
 - Real-time Communication: Socket.IO
-- Infrastructure: Docker, Github Actions, AWS
+- Containerization: Docker
 
 **Trade broadcast flow**
 
@@ -69,8 +80,6 @@ participant U as UsersService
 
 ```
 
-**Why Socket.IO over SSE**: trade updates are inherently one-directional (server push), so SSE would have sufficed. Socket.IO was chosen to support genuine bidirectional interaction — client-initiated symbol subscriptions — and because it better reflects the real-time patterns (rooms, ack-based events, reconnection) used in production trading systems.
-
 ## Prerequisites
 
 - Docker & Docker Compose
@@ -86,8 +95,37 @@ participant U as UsersService
    cp frontend/.env.example frontend/.env
    ```
 
-   - `backend/.env` — `DATABASE_URL` (see connection string below), `JWT_SECRET`, `JWT_EXPIRES_IN`, `WS_CORS_ORIGIN`, `CORS_ORIGIN`.
-   - `frontend/.env` — `VITE_API_URL` (e.g. `http://localhost:3000/api/v1`), `VITE_WS_URL` (e.g. `http://localhost:3000/trades`).
+`backend/.env` — `DATABASE_URL` (see connection string below), `JWT_SECRET`, `JWT_EXPIRES_IN`, `WS_CORS_ORIGIN`, `CORS_ORIGIN`.
+
+```
+#
+NODE_ENV=dev
+PORT=3000
+
+# Database
+# DATABASE_TYPE=postgres
+# DATABASE_USER=postgres
+# DATABASE_PASSWORD=postgres
+# DATABASE_NAME=trading-platform-db
+
+DATABASE_URL=postgresql://postgres:postgres@db:5432/trading-platform-db?schema=public
+
+# JWT
+JWT_SECRET=your_jwt_secret_key_01
+JWT_EXPIRES_IN=1hr
+
+# CORS
+WS_CORS_ORIGIN=*
+
+CORS_ORIGIN=*
+```
+
+`frontend/.env` — `VITE_API_URL` (e.g. `http://localhost:3000/api/v1`), `VITE_WS_URL` (e.g. `http://localhost:3000/trades`).
+
+```
+VITE_API_URL=http://localhost:3000/api/v1
+VITE_WS_URL=http://localhost:3000
+```
 
 ## How to run the application
 
@@ -96,14 +134,14 @@ participant U as UsersService
 ```
 Frontend: http://localhost:5173/
 API: http://localhost:3000/api/v1
-Docs: `http://localhost:3000/api/v1/docs`
+API Docs(Swagger): `http://localhost:3000/api/v1/docs`
 ```
-
-2. Continue with Seed data
 
 ### Re-seed data
 
 Populates the database with 8 test users and ~500 randomized trades for local development/testing of the blotter.
+
+> Prisma is already configured every time the `backend` container starts.
 
 - Run inside container: `docker compose exec backend npm run db:seed`
 - Local: `cd backend && DATABASE_URL="postgresql://username:password@localhost:port/db_name?schema=public" npx prisma db seed`
