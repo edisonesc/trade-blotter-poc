@@ -215,22 +215,15 @@ export function BlotterPage() {
   useTradeSocket(
     token,
     (update) => {
-      const api = gridRef.current?.api;
-      // Grid isn't mounted yet (e.g. the list was empty) — fall back to
-      // updating the query cache so the empty-state check re-renders it.
-      if (!api) {
-        queryClient.setQueryData<Trade[]>(TRADES_KEY, (prev = []) => {
+      // Always go through the query cache — it's the single source of
+      // truth for both the grid's rowData and the header's trade count.
+      queryClient.setQueryData<Trade[]>(TRADES_KEY, (prev = []) => {
+        if (update.type === "trade.created") {
           if (prev.some((t) => t.id === update.trade.id)) return prev;
           return [update.trade, ...prev];
-        });
-        return;
-      }
-      if (update.type === "trade.created") {
-        if (api.getRowNode(update.trade.id)) return;
-        api.applyTransaction({ add: [update.trade], addIndex: 0 });
-      } else {
-        api.applyTransaction({ update: [update.trade] });
-      }
+        }
+        return prev.map((t) => (t.id === update.trade.id ? update.trade : t));
+      });
     },
     (message) => {
       if (message.toLowerCase().includes("unauthorized")) {
