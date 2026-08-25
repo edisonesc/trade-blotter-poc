@@ -1,13 +1,3 @@
-generator client {
-  provider     = "prisma-client"
-  output       = "../prisma/generated/"
-  moduleFormat = "cjs"
-}
-
-datasource db {
-  provider = "postgresql"
-}
-
 enum TradeSide {
   BUY
   SELL
@@ -16,16 +6,6 @@ enum TradeSide {
 enum TradeStatus {
   ACTIVE
   CANCELLED
-}
-
-model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  username  String   @unique
-  password  String
-  createdAt DateTime @default(now())
-
-  trades Trade[]
 }
 
 model Trade {

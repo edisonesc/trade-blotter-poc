@@ -439,16 +439,6 @@ export type TradeUncheckedUpdateManyInput = {
   traderId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
-export type TradeListRelationFilter = {
-  every?: Prisma.TradeWhereInput
-  some?: Prisma.TradeWhereInput
-  none?: Prisma.TradeWhereInput
-}
-
-export type TradeOrderByRelationAggregateInput = {
-  _count?: Prisma.SortOrder
-}
-
 export type TradeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   tradeSeq?: Prisma.SortOrder
@@ -503,6 +493,48 @@ export type TradeSumOrderByAggregateInput = {
   price?: Prisma.SortOrder
 }
 
+export type TradeListRelationFilter = {
+  every?: Prisma.TradeWhereInput
+  some?: Prisma.TradeWhereInput
+  none?: Prisma.TradeWhereInput
+}
+
+export type TradeOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type StringFieldUpdateOperationsInput = {
+  set?: string
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type DecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
+}
+
+export type EnumTradeSideFieldUpdateOperationsInput = {
+  set?: $Enums.TradeSide
+}
+
+export type EnumTradeStatusFieldUpdateOperationsInput = {
+  set?: $Enums.TradeStatus
+}
+
+export type DateTimeFieldUpdateOperationsInput = {
+  set?: Date | string
+}
+
 export type TradeCreateNestedManyWithoutTraderInput = {
   create?: Prisma.XOR<Prisma.TradeCreateWithoutTraderInput, Prisma.TradeUncheckedCreateWithoutTraderInput> | Prisma.TradeCreateWithoutTraderInput[] | Prisma.TradeUncheckedCreateWithoutTraderInput[]
   connectOrCreate?: Prisma.TradeCreateOrConnectWithoutTraderInput | Prisma.TradeCreateOrConnectWithoutTraderInput[]
@@ -543,30 +575,6 @@ export type TradeUncheckedUpdateManyWithoutTraderNestedInput = {
   update?: Prisma.TradeUpdateWithWhereUniqueWithoutTraderInput | Prisma.TradeUpdateWithWhereUniqueWithoutTraderInput[]
   updateMany?: Prisma.TradeUpdateManyWithWhereWithoutTraderInput | Prisma.TradeUpdateManyWithWhereWithoutTraderInput[]
   deleteMany?: Prisma.TradeScalarWhereInput | Prisma.TradeScalarWhereInput[]
-}
-
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
-export type DecimalFieldUpdateOperationsInput = {
-  set?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
-}
-
-export type EnumTradeSideFieldUpdateOperationsInput = {
-  set?: $Enums.TradeSide
-}
-
-export type EnumTradeStatusFieldUpdateOperationsInput = {
-  set?: $Enums.TradeStatus
 }
 
 export type TradeCreateWithoutTraderInput = {
