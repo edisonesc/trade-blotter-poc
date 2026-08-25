@@ -5,5 +5,8 @@ model User {
   password  String
   createdAt DateTime @default(now())
 
+  roleId Int?
+  roles  Role? @relation(fields: [roleId], references: [id])
+
   trades Trade[]
 }

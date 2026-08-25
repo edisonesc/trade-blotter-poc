@@ -1,0 +1,6 @@
+export enum PERMISSION_PREFIX {
+  CREATE = 'CREATE_',
+  READ = 'READ_',
+  UPDATE = 'UPDATE_',
+  DELETE = 'DELETE_',
+}
