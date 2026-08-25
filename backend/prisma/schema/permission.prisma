@@ -1,5 +1,5 @@
 model Permission {
-  id   Int    @id @default(autoincrement())
-  name String @unique
-  role Role[]
+  id    Int    @id @default(autoincrement())
+  name  String @unique
+  roles Role[]
 }

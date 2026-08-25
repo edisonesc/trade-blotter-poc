@@ -6,7 +6,7 @@ model User {
   createdAt DateTime @default(now())
 
   roleId Int?
-  roles  Role? @relation(fields: [roleId], references: [id])
+  role   Role? @relation(fields: [roleId], references: [id])
 
   trades Trade[]
 }
